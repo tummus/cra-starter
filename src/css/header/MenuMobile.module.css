@@ -1,0 +1,113 @@
+.containerOuter {
+  --animation-duration-menu-mobile: 0.4s;
+}
+
+@keyframes background-overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes background-overlay-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-out {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+.backgroundOverlayFadeIn {
+  animation-duration: var(--animation-duration-menu-mobile);
+  animation-fill-mode: forwards;
+  animation-name: background-overlay-fade-in;
+  animation-timing-function: linear;
+}
+
+.backgroundOverlayFadeOut {
+  animation-duration: var(--animation-duration-menu-mobile);
+  animation-fill-mode: forwards;
+  animation-name: background-overlay-fade-out;
+  animation-timing-function: linear;
+}
+
+.closeButton {
+  align-self: flex-end;
+}
+
+.container {
+  animation-duration: var(--animation-duration-menu-mobile);
+  animation-name: slide-in;
+  animation-timing-function: ease-in-out;
+
+  align-items: center;
+  background-color: var(--color-white);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  left: 0;
+  padding-bottom: 36px;
+  /* Close button should be in same position as hamburger menu button */
+  padding-top: 39px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 4;
+}
+
+.firstRow {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.icons {
+  align-items: center;
+  column-gap: 32px;
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.slideOut {
+  animation-duration: var(--animation-duration-menu-mobile);
+  animation-fill-mode: forwards;
+  animation-name: slide-out;
+  animation-timing-function: ease-in-out;
+}
+
+.textButtons {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  row-gap: 24px;
+  width: 100%;
+}
+
+@media only screen and (max-width: 768px) {
+  .container {
+    padding-top: 32px;
+  }
+}
