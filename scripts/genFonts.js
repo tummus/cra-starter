@@ -9,7 +9,10 @@ function capitalizeFirstLetter(string) {
 }
 
 function getFontClasses() {
-  const data = fs.readFileSync("css/global/fonts/FontVariables.css", "utf8");
+  const data = fs.readFileSync(
+    "src/css/global/fonts/FontVariables.css",
+    "utf8"
+  );
   const lines = data
     .split("\n")
     .filter(
@@ -31,7 +34,7 @@ function getFontClasses() {
 //
 
 function outputFontClasses(fontClasses) {
-  const logger = fs.createWriteStream("css/global/fonts/FontClasses.css", {
+  const logger = fs.createWriteStream("src/css/global/fonts/FontClasses.css", {
     flags: "w",
   });
 
@@ -68,7 +71,7 @@ function outputFontClasses(fontClasses) {
 //
 
 function outputFontClassEnum(fontClasses) {
-  const logger = fs.createWriteStream("types/enums/FontClass.ts", {
+  const logger = fs.createWriteStream("src/types/enums/FontClass.ts", {
     flags: "w",
   });
 

@@ -9,7 +9,10 @@ function capitalizeFirstLetter(string) {
 }
 
 function getColorMap() {
-  const data = fs.readFileSync("css/global/colors/ColorVariables.css", "utf8");
+  const data = fs.readFileSync(
+    "src/css/global/colors/ColorVariables.css",
+    "utf8"
+  );
   const lines = data.split("\n").filter((line) => line.includes("--color"));
   return Object.assign(
     {},
@@ -28,9 +31,12 @@ function getColorMap() {
 //
 
 function outputColorClasses(colorMap) {
-  const logger = fs.createWriteStream("css/global/colors/ColorClasses.css", {
-    flags: "w",
-  });
+  const logger = fs.createWriteStream(
+    "src/css/global/colors/ColorClasses.css",
+    {
+      flags: "w",
+    }
+  );
 
   Object.keys(colorMap).forEach((colorName) => {
     logger.write(`.color${capitalizeFirstLetter(colorName)} {\n`);
@@ -41,7 +47,7 @@ function outputColorClasses(colorMap) {
 
 function outputBackgroundColorClasses(colorMap) {
   const logger = fs.createWriteStream(
-    "css/global/colors/BackgroundColorClasses.css",
+    "src/css/global/colors/BackgroundColorClasses.css",
     {
       flags: "w",
     }
@@ -59,7 +65,7 @@ function outputBackgroundColorClasses(colorMap) {
 //
 
 function outputColorClassEnum(colorMap) {
-  const logger = fs.createWriteStream("types/enums/ColorClass.ts", {
+  const logger = fs.createWriteStream("src/types/enums/ColorClass.ts", {
     flags: "w",
   });
 
@@ -78,9 +84,12 @@ function outputColorClassEnum(colorMap) {
 }
 
 function outputBackgroundColorClassEnum(colorMap) {
-  const logger = fs.createWriteStream("types/enums/BackgroundColorClass.ts", {
-    flags: "w",
-  });
+  const logger = fs.createWriteStream(
+    "src/types/enums/BackgroundColorClass.ts",
+    {
+      flags: "w",
+    }
+  );
 
   logger.write("enum BackgroundColorClass {\n");
 
@@ -97,7 +106,7 @@ function outputBackgroundColorClassEnum(colorMap) {
 }
 
 function outputColorValueEnum(colorMap) {
-  const logger = fs.createWriteStream("types/enums/ColorValue.ts", {
+  const logger = fs.createWriteStream("src/types/enums/ColorValue.ts", {
     flags: "w",
   });
 
