@@ -1,19 +1,25 @@
 import * as web3 from "@solana/web3.js";
 import { Connection } from "@metaplex/js";
 import { Metadata } from "@metaplex-foundation/mpl-token-metadata";
-import * as axios from "axios";
+import axios from "axios";
+
+const MAGIC_EDEN_PROGRAM_ADDR = "MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8";
+const MAGIC_EDEN_CANCEL_LISTING_INNER_INSTR_COUNT = 1;
+const MAGIC_EDEN_LISTING_INNER_INSTR_COUNT = 2;
+const MAGIC_EDEN_SALE_INNER_INSTR_COUNT = 6;
+// const LAMPORTS_IN_SOL = 1000000000;
 
 enum TransactionType {
   MINT = "mint",
   TRANSFER = "transfer",
   ME_SALE = "sale",
-  ME_LISTED = "listed",
+  ME_LISTING = "listing",
   ME_CANCEL_LISTING = "cancel_listing",
   OTHER = "other",
 }
 
 type TransactionInfo = {
-  newOwner: string | null;
+  owner: string | null;
   previousOwner: string | null;
   purchaseAmount: number | null;
   signature: string;
@@ -28,8 +34,66 @@ type TokenBalanceWithOwner = {
   owner: string;
 };
 
+type TransactionOwnerDiff = {
+  prevOwner: string | null;
+  owner: string | null;
+};
+
+type ParsedConfirmedTransactionWithBlockTime = {
+  /** The slot during which the transaction was processed */
+  slot: number;
+  /** The details of the transaction */
+  transaction: web3.ParsedTransaction;
+  /** Metadata produced from the transaction */
+  meta: web3.ParsedConfirmedTransactionMeta | null;
+  /** The unix timestamp of when the transaction was processed */
+  blockTime: number;
+};
+
+function getOwnerChangeForTransaction(
+  transaction: ParsedConfirmedTransactionWithBlockTime,
+  mintAddress: string
+): TransactionOwnerDiff {
+  let newOwner = null;
+  let prevOwner = null;
+  transaction.meta?.postTokenBalances?.forEach((balance: web3.TokenBalance) => {
+    const balanceWithOwner = balance as TokenBalanceWithOwner;
+    if (balance.mint === mintAddress && balance.uiTokenAmount.amount === "1") {
+      newOwner = balanceWithOwner.owner;
+    }
+  });
+  transaction.meta?.preTokenBalances?.forEach((balance: web3.TokenBalance) => {
+    const balanceWithOwner = balance as TokenBalanceWithOwner;
+    if (balance.mint === mintAddress && balance.uiTokenAmount.amount === "1") {
+      prevOwner = balanceWithOwner.owner;
+    }
+  });
+
+  return { prevOwner, owner: newOwner };
+}
+
+function getPurchaseAmount(
+  transaction: ParsedConfirmedTransactionWithBlockTime
+): number | null {
+  let purchaseAmount = null;
+  if (!transaction.meta) {
+    return null;
+  }
+  const { preBalances } = transaction.meta;
+  const { postBalances } = transaction.meta;
+  if (preBalances.length > 0 && postBalances.length > 0) {
+    purchaseAmount = preBalances[0] - postBalances[0] - transaction.meta.fee;
+  }
+
+  if (purchaseAmount && purchaseAmount < 0) {
+    // log error for transaction for further analysis
+    return null;
+  }
+  return purchaseAmount;
+}
+
 function getTransactionInfoForMint(
-  transaction: web3.ParsedConfirmedTransaction,
+  transaction: ParsedConfirmedTransactionWithBlockTime,
   mintAddress: string
 ): TransactionInfo | null {
   let transactionInfo = null;
@@ -56,46 +120,137 @@ function getTransactionInfoForMint(
 }
 
 function getTransactionInfoForTransfer(
-  transaction: web3.ParsedConfirmedTransaction,
+  transaction: ParsedConfirmedTransactionWithBlockTime,
   mintAddress: string
 ): TransactionInfo | null {
-  let newOwner = null;
-  let prevOwner = null;
-  transaction.meta?.postTokenBalances?.forEach((balance: web3.TokenBalance) => {
-    const balanceWithOwner = balance as TokenBalanceWithOwner;
-    if (balance.mint === mintAddress && balance.uiTokenAmount.amount === "1") {
-      newOwner = balanceWithOwner.owner;
-    } else if (
-      balance.mint === mintAddress &&
-      balance.uiTokenAmount.amount === "0"
-    ) {
-      prevOwner = balanceWithOwner.owner;
-    }
-  });
-  if (!transaction.blockTime) {
+  const { owner, prevOwner } = getOwnerChangeForTransaction(
+    transaction,
+    mintAddress
+  );
+  if (!owner) {
+    // log signature for analysis
     return null;
   }
   return {
-    newOwner,
+    owner,
     previousOwner: prevOwner,
     signature: transaction.transaction.signatures[0],
     blockTime: transaction.blockTime,
     purchaseAmount: null,
-    transactionType: newOwner
-      ? TransactionType.TRANSFER
-      : TransactionType.OTHER,
+    transactionType:
+      owner && prevOwner ? TransactionType.TRANSFER : TransactionType.OTHER,
   };
+}
+
+function getTransactionInfoForMagicEdenEvents(
+  transaction: ParsedConfirmedTransactionWithBlockTime,
+  mintAddress: string
+): TransactionInfo | null {
+  let hasMagicEdenProgramID = false;
+  transaction.transaction.message.instructions
+    .filter(
+      (instr): instr is web3.PartiallyDecodedInstruction => instr !== null
+    )
+    .forEach((instr: web3.PartiallyDecodedInstruction) => {
+      if (instr.programId.toString() === MAGIC_EDEN_PROGRAM_ADDR) {
+        hasMagicEdenProgramID = true;
+      }
+    });
+
+  // not a magic eden transaction
+  if (!hasMagicEdenProgramID) {
+    return null;
+  }
+
+  if (!transaction?.meta?.innerInstructions) {
+    // in a prod environment, log signature for analysis on what kind of magic eden transaction this was
+    return null;
+  }
+
+  if (transaction?.meta?.innerInstructions) {
+    const { owner, prevOwner } = getOwnerChangeForTransaction(
+      transaction,
+      mintAddress
+    );
+    const purchaseAmount = getPurchaseAmount(transaction);
+    switch (transaction.meta.innerInstructions[0].instructions.length) {
+      case MAGIC_EDEN_CANCEL_LISTING_INNER_INSTR_COUNT:
+        if (!owner) {
+          // log signature for analysis
+          break;
+        }
+        return {
+          owner, // this is the lister
+          previousOwner: null,
+          signature: transaction.transaction.signatures[0],
+          blockTime: transaction.blockTime,
+          purchaseAmount: null,
+          transactionType: TransactionType.ME_CANCEL_LISTING,
+        };
+      case MAGIC_EDEN_LISTING_INNER_INSTR_COUNT:
+        if (!prevOwner) {
+          // log signature for analysis
+          break;
+        }
+        return {
+          owner: prevOwner, // this is the lister
+          previousOwner: null,
+          signature: transaction.transaction.signatures[0],
+          blockTime: transaction.blockTime,
+          purchaseAmount: null,
+          transactionType: TransactionType.ME_LISTING,
+        };
+      case MAGIC_EDEN_SALE_INNER_INSTR_COUNT:
+        if (!owner || !prevOwner) {
+          // log signature for analysis
+          break;
+        }
+        if (!purchaseAmount) {
+          // don't need to log, done in getPurchaseAmount
+          break;
+        }
+        return {
+          owner, // this is the lister
+          previousOwner: prevOwner,
+          signature: transaction.transaction.signatures[0],
+          blockTime: transaction.blockTime,
+          purchaseAmount,
+          transactionType: TransactionType.ME_SALE,
+        };
+      default:
+        break;
+    }
+  }
+  // log signature for analysis on what kind of magic eden transaction this was
+  return null;
 }
 
 function convertTransaction(
   transaction: web3.ParsedConfirmedTransaction,
   mintAddress: string
 ): TransactionInfo | null {
-  const mintTransaction = getTransactionInfoForMint(transaction, mintAddress);
+  let tranWithBlockTime;
+  try {
+    tranWithBlockTime = transaction as ParsedConfirmedTransactionWithBlockTime;
+  } catch (e) {
+    // log no blockTime error for signature here
+    return null;
+  }
+  const mintTransaction = getTransactionInfoForMint(
+    tranWithBlockTime,
+    mintAddress
+  );
   if (mintTransaction) {
     return mintTransaction;
   }
-  return getTransactionInfoForTransfer(transaction, mintAddress);
+  const magicEdenTransaction = getTransactionInfoForMagicEdenEvents(
+    tranWithBlockTime,
+    mintAddress
+  );
+  if (magicEdenTransaction) {
+    return magicEdenTransaction;
+  }
+  return getTransactionInfoForTransfer(tranWithBlockTime, mintAddress);
 }
 
 function getTokenAccountsForTransactions(
@@ -177,14 +332,18 @@ export default async function getAccountData(): Promise<
       transaction != null
   );
 
+  // combine list of transactions and convert to transaction types, then sort
   const allTransactions = tokenTransactions.concat(mintTransactions);
-
   return allTransactions
     .map((transaction: web3.ParsedConfirmedTransaction) =>
       convertTransaction(transaction, mintKey)
     )
     .filter(
       (transaction): transaction is TransactionInfo => transaction != null
+    )
+    .sort((a, b) =>
+      // sort by time desc
+      a.blockTime >= b.blockTime ? -1 : 1
     );
 }
 
@@ -196,7 +355,7 @@ async function getMintAccountMetadataURI(): Promise<string> {
   return ownedMetadata.data.data.uri;
 }
 
-async function getMintAccountImageURI(): Promise<string> {
+export async function getMintAccountImageURI(): Promise<string> {
   const metadataURI = await getMintAccountMetadataURI();
   const resp = await axios.get(metadataURI);
   return resp.data.image;
