@@ -1,17 +1,12 @@
 .header {
   align-items: center;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   padding-bottom: 23px;
   padding-top: 27px;
+  background-image: linear-gradient(to right, #4e48f2 , #8458ff);
 }
 
 .left, .right {
   width: 200px;
-}
-
-@media only screen and (max-width: 1024px) {
-  .logo {
-    width: 300px;
-  }
 }
