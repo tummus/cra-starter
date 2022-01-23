@@ -31,7 +31,7 @@ export default function GenericInput({
   subLabelFontClass = FontClass.SmallCaps,
 }: Props): JSX.Element {
   return (
-    <div>
+    <div className={styles.container}>
       {(label != null || subLabel != null) && (
         <div className={styles.labels}>
           {label != null && (

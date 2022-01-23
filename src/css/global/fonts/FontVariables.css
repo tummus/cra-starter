@@ -1,18 +1,18 @@
 :root {
   /* body1 */
-  --font-family-body1: "Work Sans", sans-serif;
-  --font-size-body1: 18px;
+  --font-family-body1: "DM Sans", sans-serif;
+  --font-size-body1: 17px;
   --font-weight-body1: 400;
-  --line-height-body1: 24px;
+  --line-height-body1: 22px;
 
   /* body2 */
-  --font-family-body2: "Work Sans", sans-serif;
-  --font-size-body2: 14px;
+  --font-family-body2: "DM Sans", sans-serif;
+  --font-size-body2: 15px;
   --font-weight-body2: 400;
-  --line-height-body2: 18px;
+  --line-height-body2: 22px;
 
   /* body3 */
-  --font-family-body3: "Work Sans", sans-serif;
+  --font-family-body3: "DM Sans", sans-serif;
   --font-size-body3: 12px;
   --font-weight-body3: 400;
   --line-height-body3: 16px;
@@ -24,23 +24,24 @@
 
   /* header1 */
   --font-family-header1: "DM Sans", sans-serif;
-  --font-size-header1: 36px;
-  --font-weight-header1: 700;
+  --font-size-header1: 32px;
+  --font-weight-header1: 500;
+  --line-height-header1: 42px;
 
   /* header2 */
-  --font-family-header2: "Space Grotesk", sans-serif;
-  --font-size-header2: 28px;
-  --font-weight-header2: 700;
-  --line-height-header2: 34px;
+  --font-family-header2: "DM Sans", sans-serif;
+  --font-size-header2: 22px;
+  --font-weight-header2: 500;
+  --line-height-header2: 22px;
 
   /* header3 */
-  --font-family-header3: "Space Grotesk", sans-serif;
+  --font-family-header3: "DM Sans", sans-serif;
   --font-size-header3: 18px;
   --font-weight-header3: 700;
   --line-height-header3: 24px;
 
   /* smallCaps */
-  --font-family-smallCaps: "Space Grotesk", sans-serif;
+  --font-family-smallCaps: "DM Sans", sans-serif;
   --font-size-smallCaps: 16px;
   --font-weight-smallCaps: 700;
   --letter-spacing-smallCaps: 0.16em;
@@ -50,19 +51,19 @@
 @media only screen and (max-width: 768px) {
   :root {
     /* body1 */
-    --font-family-body1: "Work Sans", sans-serif;
+    --font-family-body1: "DM Sans", sans-serif;
     --font-size-body1: 16px;
     --font-weight-body1: 400;
     --line-height-body1: 22px;
 
     /* body2 */
-    --font-family-body2: "Work Sans", sans-serif;
+    --font-family-body2: "DM Sans", sans-serif;
     --font-size-body2: 13px;
     --font-weight-body2: 400;
     --line-height-body2: 17px;
 
     /* body3 */
-    --font-family-body3: "Work Sans", sans-serif;
+    --font-family-body3: "DM Sans", sans-serif;
     --font-size-body3: 11px;
     --font-weight-body3: 400;
     --line-height-body3: 14px;
@@ -75,22 +76,22 @@
     /* header1 */
     --font-family-header1: "DM Sans", sans-serif;
     --font-size-header1: 28px;
-    --font-weight-header1: 700;
+    --font-weight-header1: 500;
 
     /* header2 */
-    --font-family-header2: "Space Grotesk", sans-serif;
-    --font-size-header2: 24px;
-    --font-weight-header2: 700;
+    --font-family-header2: "DM Sans", sans-serif;
+    --font-size-header2: 22px;
+    --font-weight-header2: 500;
     --line-height-header2: 32px;
 
     /* header3 */
-    --font-family-header3: "Space Grotesk", sans-serif;
+    --font-family-header3: "DM Sans", sans-serif;
     --font-size-header3: 18px;
     --font-weight-header3: 700;
     --line-height-header3: 24px;
 
     /* smallCaps */
-    --font-family-smallCaps: "Space Grotesk", sans-serif;
+    --font-family-smallCaps: "DM Sans", sans-serif;
     --font-size-smallCaps: 14px;
     --font-weight-smallCaps: 700;
     --line-height-smallCaps: 22px;

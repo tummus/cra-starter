@@ -8,4 +8,7 @@
 
 .container {
   margin: auto;
+  align-content: center;
+  flex-direction: column;
+  width: 100%;
 }

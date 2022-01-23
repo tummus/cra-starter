@@ -22,3 +22,9 @@
   color: var(--color-tertiary);
   margin-left: 8px;
 }
+
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}

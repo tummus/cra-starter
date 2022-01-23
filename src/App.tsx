@@ -9,16 +9,15 @@ import "css/global/colors/ColorClasses.css";
 import "css/global/fonts/FontClasses.css";
 import "css/global/fonts/FontVariables.css";
 
-import Routes from "routes/Routes";
-import { BrowserRouter } from "react-router-dom";
 import Header from "./components/header/Header";
+import LandingPage from "./components/pages/LandingPage";
 
 function App() {
   return (
-    <BrowserRouter>
+    <>
       <Header />
-      <Routes />
-    </BrowserRouter>
+      <LandingPage />
+    </>
   );
 }
 

@@ -4,9 +4,11 @@
   justify-content: center;
   padding-bottom: 23px;
   padding-top: 27px;
-  background-image: linear-gradient(to right, #4e48f2 , #8458ff);
+  background-image: linear-gradient(to right, #4e48f2, #8458ff);
+  width: 100%;
 }
 
-.left, .right {
+.left,
+.right {
   width: 200px;
 }

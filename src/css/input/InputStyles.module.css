@@ -23,7 +23,7 @@
 .textAreaContainer {
   /* Put border on container so border-radius cuts off scrollbar */
   border: 1px solid var(--color-ghost);
-  border-radius: 4px;
+  border-radius: 100px;
   /* Gets rid of extra space on bottom of container */
   display: flex;
   overflow: hidden;
@@ -34,8 +34,8 @@
 }
 
 .textInput {
-  border: 1px solid var(--color-ghost);
-  border-radius: 4px;
+  border: 1px solid lightgray;
+  border-radius: 100px;
   box-sizing: border-box;
   color: var(--color-primary);
   outline: none;
@@ -51,7 +51,7 @@
 }
 
 .textInput:focus {
-  border-color: var(--color-secondary);
+  border-color: lightgray;
 }
 
 .textInputError {
